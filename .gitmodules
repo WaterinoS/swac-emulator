@@ -1,0 +1,6 @@
+[submodule "te_sdk"]
+	path = te_sdk
+	url = https://github.com/WaterinoS/te_sdk.git
+[submodule "external/minhook"]
+	path = external/minhook
+	url = https://github.com/TsudaKageyu/minhook.git

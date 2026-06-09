@@ -1,0 +1,106 @@
+#pragma once
+
+#include "te-inc.h"
+#include "te-helper.h"
+#include "te-samp.h"
+#include "te-logger.h"
+#include "te-rakclient.h"
+
+enum class HookType
+{
+    OutgoingRpc,
+    IncomingRpc,
+    OutgoingPacket,
+    IncomingPacket
+};
+
+namespace te::sdk
+{
+    struct RpcContext
+    {
+        uint32_t rpcId;
+        void* bitStream;
+        void* rakPeer;
+    };
+
+    struct PacketContext
+    {
+        uint32_t packetId;
+        void* bitStream;
+        void* rakPeer;
+    };
+
+    struct SessionInfo
+    {
+        char serverIP[64];           // Server IP address
+        unsigned short serverPort;   // Server port
+        unsigned short clientPort;   // Client port used for connection
+        bool isConnected;            // Connection status
+        unsigned int deprecated;     // Deprecated parameter from Connect call
+        int threadSleepTimer;        // Thread sleep timer from Connect call
+    };
+
+    using RpcCallback = std::function<bool(const RpcContext&)>;
+    using PacketCallback = std::function<bool(const PacketContext&)>;
+    using tHandleRpcPacket = bool(__thiscall*)(void* rp, const char* data, int length, PlayerID playerid);
+
+    void RegisterRaknetCallback(HookType type, RpcCallback callback);
+    void RegisterRaknetCallback(HookType type, PacketCallback callback);
+    bool InitRakNetHooks();
+
+    // RPC hook function
+    bool __fastcall hkHandleRpcPacket(void* rp, void*, const char* data, int length, PlayerID playerid);
+    bool AttachHandleRpcPacketHook();
+    bool IsSupportedSAMPVersion(helper::SAMPVersion version);
+
+    extern TERakClient* LocalClient;
+    SessionInfo& GetSessionInfo();
+
+    // Replay a previously blocked RPC through the original handler, bypassing TE hooks
+    void ReplayIncomingRPC(uint8_t rpcId, const uint8_t* data, int numBytes);
+
+    static_assert(sizeof(PacketContext) == 12, "PacketContext must be 12 bytes on 32-bit");
+    static_assert(sizeof(RpcContext) == 12, "RpcContext must be 12 bytes on 32-bit");
+}
+
+namespace te::sdk::forwarder
+{
+    // Forward declarations of internal functions
+    bool OnOutgoingRpc(uint8_t rpcId, void* bitStream, void* rakPeer);
+    bool OnIncomingRpc(uint8_t rpcId, void* bitStream, void* rakPeer);
+    bool OnOutgoingPacket(uint8_t packetId, void* bitStream, void* rakPeer);
+    bool OnIncomingPacket(uint8_t packetId, void* bitStream, void* rakPeer);
+
+    // Inline wrappers
+    inline bool ForwardOutgoingRpc(uint8_t rpcId, void* bitStream, void* rakPeer)
+    {
+        return OnOutgoingRpc(rpcId, bitStream, rakPeer);
+    }
+
+    inline bool ForwardIncomingRpc(uint8_t rpcId, void* bitStream, void* rakPeer)
+    {
+        return OnIncomingRpc(rpcId, bitStream, rakPeer);
+    }
+
+    inline bool ForwardOutgoingPacket(uint8_t packetId, void* bitStream, void* rakPeer)
+    {
+        return OnOutgoingPacket(packetId, bitStream, rakPeer);
+    }
+
+    inline bool ForwardIncomingPacket(uint8_t packetId, void* bitStream, void* rakPeer)
+    {
+        return OnIncomingPacket(packetId, bitStream, rakPeer);
+    }
+
+    struct HookForwarder
+    {
+        decltype(&ForwardOutgoingRpc) OutgoingRpc = ForwardOutgoingRpc;
+        decltype(&ForwardIncomingRpc) IncomingRpc = ForwardIncomingRpc;
+        decltype(&ForwardOutgoingPacket) OutgoingPacket = ForwardOutgoingPacket;
+        decltype(&ForwardIncomingPacket) IncomingPacket = ForwardIncomingPacket;
+    };
+
+    extern HookForwarder g_forwarder;
+}
+
+#include "te-hookedrakclient.h"

@@ -1,0 +1,47 @@
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Linker files
+*.ilk
+
+# Debugger Files
+*.pdb
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+
+# Executables
+*.exe
+*.out
+*.app
+
+# debug information files
+*.dwo
+/.vs
+/#TE SDK/#TE SDK/Debug
+/#TE SDK/.vs/#TE SDK
+/#TE SDK/Build
+/#TE SDK/#TE SDK/Release
+/#TE SDK/Release
+/#TE SDK/.claude/settings.local.json
