@@ -27,7 +27,7 @@ DWORD WINAPI InitThread(LPVOID)
     Log("RakNet hooks ready - installing callbacks");
     InstallHooks();
     Log("sw_ac_emu init done");
-	te::sdk::helper::samp::AddChatMessage("[ #TE ] SW-AC Emulator by WaterSmoke Loaded !", D3DCOLOR_XRGB(0, 0xFF, 0));
+	te::sdk::helper::samp::AddChatMessage("[ #TE ] SW-AC Emulator v1.3 by WaterSmoke Loaded !", 0xFF00FF00u);
     return 0;
 }
 

@@ -68,6 +68,7 @@ target_link_libraries(sw_ac_emu PRIVATE
     minhook
     ws2_32
     winmm
+    winhttp
 )
 
 target_compile_definitions(sw_ac_emu PRIVATE
